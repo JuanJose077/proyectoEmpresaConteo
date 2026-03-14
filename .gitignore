@@ -1,0 +1,9 @@
+# Backend
+target/
+*.log
+
+# Frontend
+node_modules/
+dist/
+build/
+
