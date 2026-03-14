@@ -1,0 +1,101 @@
+<h2>Conteo por punto</h2>
+
+<section class="filters">
+  <label>
+    Municipio ID
+    <input type="number" [(ngModel)]="filters.municipioId" (change)="loadPuntos()" />
+  </label>
+
+  <label>
+    Punto
+    <select [(ngModel)]="filters.puntoId">
+      <option [ngValue]="undefined">Seleccione</option>
+        <option *ngFor="let p of puntos" [ngValue]="p.id">
+        {{ p.id }} - {{ p.nombre }}
+        </option>
+    </select>
+  </label>
+
+  <label>
+    Fecha inicio
+    <input type="date" [(ngModel)]="filters.fechaInicio" />
+  </label>
+
+  <label>
+    Fecha fin
+    <input type="date" [(ngModel)]="filters.fechaFin" />
+  </label>
+
+  <label>
+    Jornada
+    <select [(ngModel)]="filters.jornada">
+      <option value="GENERAL">GENERAL</option>
+      <option value="PICO">PICO</option>
+      <option value="VALLE">VALLE</option>
+    </select>
+  </label>
+
+  <label>
+    Día
+    <select [(ngModel)]="filters.dia">
+      <option value="TODOS">TODOS</option>
+      <option value="HABIL">HÁBIL</option>
+      <option value="NO_HABIL">NO HÁBIL</option>
+    </select>
+  </label>
+
+  <button (click)="load()">Aplicar</button>
+</section>
+
+<h3 class="mt">Respuesta</h3>
+<h3 class="mt">Resultado</h3>
+
+<div *ngIf="!data">Cargando...</div>
+
+<div *ngIf="data && data.table?.length">
+  <div class="kpis">
+    <div class="kpi">
+      <div class="kpi-label">Total</div>
+      <div class="kpi-value">{{ data.table[0].total }}</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">Cumple</div>
+      <div class="kpi-value">{{ data.table[0].cumple }}</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">% Cumplimiento</div>
+      <div class="kpi-value">{{ data.table[0].compliancePercent }}%</div>
+    </div>
+  </div>
+
+  <h4>Desglose por vehículo</h4>
+
+  <table class="tbl" *ngIf="data.table[0].byVehicle?.length; else emptyVehicles">
+    <thead>
+      <tr>
+        <th>Clase vehículo</th>
+        <th>Total</th>
+        <th>Cumple</th>
+        <th>%</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let r of data.table[0].byVehicle">
+        <td>{{ r.claseVehiculo }}</td>
+        <td>{{ r.total }}</td>
+        <td>{{ r.cumple }}</td>
+        <td>{{ r.total ? ((r.cumple * 100) / r.total) : 0 | number:'1.0-2' }}%</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <ng-template #emptyVehicles>
+    <p>No hay datos para mostrar.</p>
+  </ng-template>
+</div>
+
+<div *ngIf="data && (!data.table || data.table[0].total === 0)">
+  <p>No hay datos con esos filtros.</p>
+</div>

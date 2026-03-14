@@ -1,0 +1,206 @@
+<h2>Cobertura por Municipio</h2>
+<p class="hint">
+  Selecciona un departamento (obligatorio) y opcionalmente filtra por fecha,
+  jornada y tipo de día.
+</p>
+
+<section class="filters-card">
+  <div class="filters-grid">
+    <div class="field">
+      <label>Departamento *</label>
+      <select [(ngModel)]="filters.departamento">
+        <option value="">Seleccione...</option>
+        <option *ngFor="let d of departamentos" [value]="d">{{ d }}</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Fecha inicio</label>
+      <input type="date" [(ngModel)]="filters.fechaInicio" />
+    </div>
+
+    <div class="field">
+      <label>Fecha fin</label>
+      <input type="date" [(ngModel)]="filters.fechaFin" />
+    </div>
+
+    <div class="field">
+      <label>Jornada</label>
+      <select [(ngModel)]="filters.jornada">
+        <option value="GENERAL">General</option>
+        <option value="PICO">Pico</option>
+        <option value="VALLE">Valle</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Día</label>
+      <select [(ngModel)]="filters.dia">
+        <option value="TODOS">Todos</option>
+        <option value="HABIL">Hábil</option>
+        <option value="NO_HABIL">No hábil</option>
+      </select>
+    </div>
+
+    <div class="btn-container">
+      <button
+        class="btn primary"
+        (click)="consultar()"
+        [disabled]="!filters.departamento || loading"
+      >
+        {{ loading ? "Consultando..." : "Consultar" }}
+      </button>
+    </div>
+  </div>
+</section>
+<div *ngIf="error" class="error-box">
+  {{ error }}
+</div>
+
+<div *ngIf="loading" class="info">Cargando información...</div>
+
+<section *ngIf="results && !loading" class="results">
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <article class="kpi-card">
+      <div class="kpi-label">Municipios del departamento</div>
+      <div class="kpi-value">{{ results.total }}</div>
+    </article>
+
+    <article class="kpi-card">
+      <div class="kpi-label">Municipios con datos</div>
+      <div class="kpi-value success">{{ results.conDatos }}</div>
+    </article>
+
+    <article class="kpi-card">
+      <div class="kpi-label">Municipios sin datos</div>
+      <div class="kpi-value danger">{{ results.sinDatos }}</div>
+    </article>
+
+    <article class="kpi-card">
+      <div class="kpi-label">Cobertura</div>
+      <div class="kpi-value">{{ resumen?.cobertura ?? 0 }}%</div>
+    </article>
+  </div>
+
+  <!-- Rankings -->
+  <div class="ranking-grid">
+    <section class="panel-card">
+      <div class="panel-header">
+        <h3>Ranking de municipios con más conteos</h3>
+      </div>
+
+      <div
+        *ngIf="rankingMas?.length; else emptyRankingMas"
+        class="ranking-list"
+      >
+        <div
+          class="ranking-item"
+          *ngFor="let item of rankingMas; let i = index"
+        >
+          <div class="ranking-left">
+            <span class="ranking-pos">{{ i + 1 }}</span>
+            <span class="ranking-name">{{ item.municipio }}</span>
+          </div>
+          <span class="ranking-count">{{ item.conteo }}</span>
+        </div>
+      </div>
+
+      <ng-template #emptyRankingMas>
+        <div class="empty-state">No hay datos para este ranking.</div>
+      </ng-template>
+    </section>
+
+    <section class="panel-card">
+      <div class="panel-header">
+        <h3>Ranking de municipios con menor conteo</h3>
+        <small>Solo municipios con datos</small>
+      </div>
+
+      <div
+        *ngIf="rankingMenos?.length; else emptyRankingMenos"
+        class="ranking-list"
+      >
+        <div
+          class="ranking-item"
+          *ngFor="let item of rankingMenos; let i = index"
+        >
+          <div class="ranking-left">
+            <span class="ranking-pos">{{ i + 1 }}</span>
+            <span class="ranking-name">{{ item.municipio }}</span>
+          </div>
+          <span class="ranking-count">{{ item.conteo }}</span>
+        </div>
+      </div>
+
+      <ng-template #emptyRankingMenos>
+        <div class="empty-state">No hay datos para este ranking.</div>
+      </ng-template>
+    </section>
+  </div>
+
+  <!-- Tabla principal -->
+  <section class="panel-card">
+    <div class="panel-header">
+      <h3>Detalle por municipio</h3>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Municipio</th>
+            <th>Tiene datos</th>
+            <th>Conteo</th>
+            <th>Última toma</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of detalleMunicipios">
+            <td>{{ m.municipio }}</td>
+            <td>
+              <span class="pill ok" *ngIf="m.tieneDatos">Sí</span>
+              <span class="pill bad" *ngIf="!m.tieneDatos">No</span>
+            </td>
+            <td>{{ m.conteo }}</td>
+            <td>
+              <span *ngIf="m.ultimaToma; else sinFecha">
+                {{ m.ultimaToma | date: "yyyy-MM-dd" }}
+              </span>
+              <ng-template #sinFecha>—</ng-template>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Tabla sin datos -->
+  <section class="panel-card">
+    <div class="panel-header">
+      <h3>Municipios sin datos</h3>
+    </div>
+
+    <div
+      *ngIf="municipiosSinDatos?.length; else emptySinDatos"
+      class="table-wrap"
+    >
+      <table>
+        <thead>
+          <tr>
+            <th>Municipio</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of municipiosSinDatos">
+            <td>{{ m.municipio }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #emptySinDatos>
+      <div class="empty-state">Todos los municipios tienen datos.</div>
+    </ng-template>
+  </section>
+</section>

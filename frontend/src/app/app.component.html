@@ -1,0 +1,25 @@
+<router-outlet *ngIf="isAuthPage"></router-outlet>
+
+<div class="app-layout" *ngIf="!isAuthPage">
+  <aside class="sidebar">
+    <div class="logo">
+      <h2>Seguridad Vial</h2>
+    </div>
+
+    <nav class="menu">
+      <a routerLink="/metas-vs-conteo" routerLinkActive="active">Metas vs Conteo</a>
+      <a routerLink="/metas-por-municipio" routerLinkActive="active">Cobertura por Municipio</a>
+      <a routerLink="/conteo-por-punto" routerLinkActive="active">Conteo por Punto</a>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <header class="header">
+      <span class="title">Panel de Control</span>
+    </header>
+
+    <section class="content">
+      <router-outlet></router-outlet>
+    </section>
+  </div>
+</div>

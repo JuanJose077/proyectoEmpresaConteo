@@ -1,0 +1,245 @@
+<h2>Metas vs Conteo</h2>
+<p class="hint">
+  Selecciona un departamento (obligatorio) y opcionalmente filtra por municipio,punto, fecha,
+  jornada y tipo de día.
+</p>
+<section class="filters-card">
+  <div class="filters-grid">
+
+    <div class="field">
+      <label>Departamento *</label>
+      <select
+        [(ngModel)]="departamentoSeleccionado"
+        (change)="onDepartamentoChange()"
+      >
+        <option value="">Seleccionar...</option>
+        <option *ngFor="let d of departamentos" [value]="d">{{ d }}</option>
+      </select>
+    </div>
+
+
+    <div class="field">
+      <label>Municipio</label>
+      <select
+        [(ngModel)]="municipioSeleccionadoId"
+        (change)="onMunicipioChange()"
+      >
+        <option [ngValue]="null">Todos</option>
+        <option *ngFor="let m of municipios" [ngValue]="m.id">
+          {{ m.nombre }}
+        </option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="punto">Punto</label>
+      <select
+        id="punto"
+        [(ngModel)]="puntoSeleccionadoId"
+        (change)="onPuntoChange()"
+        [disabled]="!municipioSeleccionadoId"
+      >
+        <option [ngValue]="null">Todos</option>
+        <option *ngFor="let p of puntos" [ngValue]="p.id">
+          {{ p.nombre }}
+        </option>
+      </select>
+    </div>
+
+
+    <div class="field">
+      <label>Fecha inicio</label>
+      <input
+        type="date"
+        [(ngModel)]="filters.fechaInicio"
+        (change)="onFilterChange()"
+      />
+    </div>
+
+
+    <div class="field">
+      <label>Fecha fin</label>
+      <input
+        type="date"
+        [(ngModel)]="filters.fechaFin"
+        (change)="onFilterChange()"
+      />
+    </div>
+
+
+    <div class="field">
+      <label>Jornada</label>
+      <select [(ngModel)]="filters.jornada" (change)="onFilterChange()">
+        <option value="GENERAL">General</option>
+        <option value="PICO">Pico</option>
+        <option value="VALLE">Valle</option>
+      </select>
+    </div>
+
+
+    <div class="field">
+      <label>Día</label>
+      <select [(ngModel)]="filters.dia" (change)="onFilterChange()">
+        <option value="TODOS">Todos</option>
+        <option value="HABIL">Hábil</option>
+        <option value="NO_HABIL">No hábil</option>
+      </select>
+    </div>
+
+
+    <div class="btn-container">
+      <button
+        class="btn-primary"
+        (click)="load()"
+        [disabled]="!departamentoSeleccionado || loading || loadingCatalogo"
+      >
+        {{ loading ? "Cargando..." : "Consultar" }}
+      </button>
+    </div>
+  </div>
+</section>
+
+
+<div *ngIf="loadingCatalogo" class="info">⏳ Cargando...</div>
+<div *ngIf="loading" class="info">⏳ Cargando dashboard...</div>
+<div *ngIf="error" class="error">⚠ {{ error }}</div>
+
+<ng-container *ngIf="data">
+
+  <div class="meta">
+    <span><b>Departamento</b> {{ departamentoSeleccionado }}</span>
+    <span><b>Municipio</b> {{ getMunicipioNombre() }}</span>
+    <span><b>Punto</b> {{getPuntoNombre() }}</span>
+    <span
+      ><b>Rango</b> {{ data.metaInfo.fechaInicio ?? "—" }} →
+      {{ data.metaInfo.fechaFin ?? "—" }}</span
+    >
+    <span><b>Jornada</b> {{ data.metaInfo.jornada }}</span>
+    <span><b>Día</b> {{ data.metaInfo.dia }}</span>
+  </div>
+
+  <div class="actions-row">
+    <button class="btn-secondary" (click)="toggleChart()" [disabled]="!data">
+      {{ showChart ? "Ocultar gráfica" : "Ver gráfica" }}
+    </button>
+
+    <button class="btn-secondary" (click)="exportToPdf()" [disabled]="!data">
+      Exportar PDF
+    </button>
+
+    <button class="btn-secondary" (click)="exportToCsv()" [disabled]="!data">
+      Exportar CSV
+    </button>
+  </div>
+  <div class="chart-card" *ngIf="showChart && data" #chartCard>
+    <h3>Porcentaje de avances de los indicadores por actor vial</h3>
+
+    <div class="chart-wrap">
+      <canvas
+        baseChart
+        [data]="barChartData"
+        [options]="barChartOptions"
+        [type]="barChartType"
+      >
+      </canvas>
+    </div>
+  </div>
+
+  <!-- Tabla principal -->
+  <div class="table-wrap">
+    <table class="metas-table">
+      <thead>
+        <tr>
+          <th class="th-behavior">Comportamiento vial observado</th>
+          <th class="th-type">Dato</th>
+          <th *ngFor="let v of vehicleColumns">{{ v }}</th>
+        </tr>
+      </thead>
+
+      <tbody *ngFor="let row of data.table; let i = index">
+        <tr class="meta-row">
+          <td rowspan="5" class="behavior-cell">
+            <div class="behavior-title">{{ i + 1 }}. {{ row.label }}</div>
+          </td>
+          <td class="type-cell">Meta</td>
+          <td
+            *ngFor="let v of vehicleColumns"
+            class="num meta-cell"
+            [class.no-aplica]="!aplica(row.label, v)"
+          >
+            <ng-container *ngIf="aplica(row.label, v)">
+              {{ valueOf(row.metaByVehicle, v, 0) }}
+            </ng-container>
+          </td>
+        </tr>
+
+        <tr class="observ-row">
+          <td class="type-cell">Observ.</td>
+          <td
+            *ngFor="let v of vehicleColumns"
+            class="num"
+            [class.no-aplica]="!aplica(row.label, v)"
+          >
+            <ng-container *ngIf="aplica(row.label, v)">
+              {{ valueOf(row.observByVehicle, v, 0) }}
+            </ng-container>
+          </td>
+        </tr>
+
+        <tr class="avance-row">
+          <td class="type-cell">Avance</td>
+          <td
+            *ngFor="let v of vehicleColumns"
+            class="num pct-cell"
+            [ngClass]="
+              aplica(row.label, v)
+                ? getAvanceClass(valueOf(row.avanceByVehicle, v, 0))
+                : 'no-aplica'
+            "
+          >
+            <ng-container *ngIf="aplica(row.label, v)">
+              {{ fmtPct(valueOf(row.avanceByVehicle, v, 0)) }}%
+            </ng-container>
+          </td>
+        </tr>
+
+        <tr class="cumplimiento-row">
+          <td class="type-cell">Cumplimiento</td>
+          <td
+            *ngFor="let v of vehicleColumns"
+            class="num pct-cell"
+            [class.no-aplica]="!aplica(row.label, v)"
+          >
+            <ng-container *ngIf="aplica(row.label, v)">
+              {{ fmtPct(valueOf(row.cumplimientoByVehicle, v, 0)) }}%
+            </ng-container>
+          </td>
+        </tr>
+
+        <tr class="estado-row">
+          <td class="type-cell">Meta 80%</td>
+          <td
+            *ngFor="let v of vehicleColumns"
+            class="status-cell"
+            [class.no-aplica]="!aplica(row.label, v)"
+          >
+            <ng-container *ngIf="aplica(row.label, v)">
+              <span
+                class="status-badge ok"
+                *ngIf="statusOf(row.cumpleMeta80ByVehicle, v)"
+                >✓ Cumple</span
+              >
+              <span
+                class="status-badge bad"
+                *ngIf="!statusOf(row.cumpleMeta80ByVehicle, v)"
+                >✕ No cumple</span
+              >
+            </ng-container>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+</ng-container>
