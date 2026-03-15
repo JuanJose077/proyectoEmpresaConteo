@@ -23,6 +23,7 @@ public class ReportController {
     private final ChildRestraintReportService childRestraintReportService;
     private final OveroccupancyReportService overoccupancyReportService;
     private final DistractoresReportService distractoresReportService;
+    private final ConteoPorPuntoService conteoPorPuntoService;
     private final CatalogValidationService catalogValidationService;
     private final MetasRepository metasRepository;
     private final EmpresaMunicipioRepository empresaMunicipioRepository;
@@ -37,6 +38,7 @@ public class ReportController {
                             ChildRestraintReportService childRestraintReportService,
                             OveroccupancyReportService overoccupancyReportService,
                             DistractoresReportService distractoresReportService,
+                            ConteoPorPuntoService conteoPorPuntoService,
                             CatalogValidationService catalogValidationService,
                             MetasRepository metasRepository,
                             EmpresaMunicipioRepository empresaMunicipioRepository
@@ -51,6 +53,7 @@ public class ReportController {
         this.childRestraintReportService = childRestraintReportService;
         this.overoccupancyReportService = overoccupancyReportService;
         this.distractoresReportService = distractoresReportService;
+        this.conteoPorPuntoService = conteoPorPuntoService;
         this.catalogValidationService = catalogValidationService;
         this.metasRepository = metasRepository;
         this.empresaMunicipioRepository = empresaMunicipioRepository;
@@ -62,10 +65,41 @@ public class ReportController {
     }
 
     // =========================
-    // (Legacy) Conteo por punto -> Helmet
+    // Conteo por punto (ranking)
     // =========================
     @GetMapping("/conteo-por-punto")
-    public Map<String, Object> conteoPorPunto(
+    public List<ConteoPorPuntoService.ConteoPorPuntoItem> conteoPorPunto(
+            @RequestParam(required = false) String departamento,
+            @RequestParam(required = false) Integer municipioId,
+            @RequestParam(required = false) Integer puntoId,
+            @RequestParam(required = false) String fechaInicio,
+            @RequestParam(required = false) String fechaFin,
+            @RequestParam(defaultValue = "GENERAL") String jornada,
+            @RequestParam(defaultValue = "TODOS") String dia,
+            @RequestParam(required = false) Integer limite
+    ) {
+        if (municipioId != null && puntoId != null) {
+            boolean ok = catalogValidationService.puntoPerteneceAMunicipio(puntoId, municipioId);
+            if (!ok) {
+                throw new IllegalArgumentException(
+                        "El puntoId " + puntoId + " no pertenece al municipioId " + municipioId
+                );
+            }
+        }
+
+        LocalDate ini = parseDateOrNull(fechaInicio);
+        LocalDate fin = parseDateOrNull(fechaFin);
+
+        return conteoPorPuntoService.getRankingPorPunto(
+                departamento, municipioId, puntoId, ini, fin, jornada, dia, limite
+        );
+    }
+
+    // =========================
+    // Actividad diaria por punto
+    // =========================
+    @GetMapping("/conteo-por-punto/actividad-diaria")
+    public List<ConteoPorPuntoService.ActividadDiariaItem> actividadDiariaPorPunto(
             @RequestParam(required = false) String departamento,
             @RequestParam(required = false) Integer municipioId,
             @RequestParam(required = false) Integer puntoId,
@@ -74,19 +108,20 @@ public class ReportController {
             @RequestParam(defaultValue = "GENERAL") String jornada,
             @RequestParam(defaultValue = "TODOS") String dia
     ) {
+        if (municipioId != null && puntoId != null) {
+            boolean ok = catalogValidationService.puntoPerteneceAMunicipio(puntoId, municipioId);
+            if (!ok) {
+                throw new IllegalArgumentException(
+                        "El puntoId " + puntoId + " no pertenece al municipioId " + municipioId
+                );
+            }
+        }
+
         LocalDate ini = parseDateOrNull(fechaInicio);
         LocalDate fin = parseDateOrNull(fechaFin);
 
-        List<Map<String, Object>> rows = helmetReportService.getHelmetStats(
+        return conteoPorPuntoService.getActividadDiaria(
                 departamento, municipioId, puntoId, ini, fin, jornada, dia
-        );
-
-        return ReportResponseBuilder.build(
-                "HELMET",
-                "Uso del casco",
-                80.0,
-                rows,
-                municipioId, puntoId, fechaInicio, fechaFin, jornada, dia
         );
     }
 

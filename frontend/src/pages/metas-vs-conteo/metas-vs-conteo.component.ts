@@ -17,7 +17,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import html2canvas from 'html2canvas';
+
 
 type Jornada = 'GENERAL' | 'PICO' | 'VALLE';
 type DiaTipo = 'TODOS' | 'HABIL' | 'NO_HABIL';
@@ -25,7 +25,7 @@ type DiaTipo = 'TODOS' | 'HABIL' | 'NO_HABIL';
 @Component({
   selector: 'app-metas-vs-conteo',
   standalone: true,
-  imports: [CommonModule, FormsModule, JsonPipe, BaseChartDirective],
+  imports: [CommonModule, FormsModule, BaseChartDirective],
   templateUrl: './metas-vs-conteo.component.html',
   styleUrls: ['./metas-vs-conteo.component.scss'],
 })

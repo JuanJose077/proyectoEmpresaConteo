@@ -12,13 +12,25 @@ export interface ConteoPorPuntoParams {
   fechaFin?: string;    // YYYY-MM-DD
   jornada?: Jornada;
   dia?: DiaTipo;
+  limite?: number;
+}
+
+export interface ConteoPorPuntoItem {
+  puntoId: number;
+  punto: string;
+  cantidad: number;
+}
+
+export interface ActividadDiariaItem {
+  fecha: string; // YYYY-MM-DD
+  cantidad: number;
 }
 
 @Injectable({ providedIn: 'root' })
 export class ReportService {
   constructor(private http: HttpClient) {}
 
-  getConteoPorPunto(params: ConteoPorPuntoParams): Observable<any> {
+  getConteoPorPunto(params: ConteoPorPuntoParams): Observable<ConteoPorPuntoItem[]> {
     let httpParams = new HttpParams();
 
     Object.entries(params).forEach(([key, value]) => {
@@ -27,7 +39,19 @@ export class ReportService {
       }
     });
 
-    return this.http.get('/api/reportes/conteo-por-punto', { params: httpParams });
+    return this.http.get<ConteoPorPuntoItem[]>('/api/reportes/conteo-por-punto', { params: httpParams });
+  }
+
+  getActividadDiaria(params: ConteoPorPuntoParams): Observable<ActividadDiariaItem[]> {
+    let httpParams = new HttpParams();
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        httpParams = httpParams.set(key, String(value));
+      }
+    });
+
+    return this.http.get<ActividadDiariaItem[]>('/api/reportes/conteo-por-punto/actividad-diaria', { params: httpParams });
   }
   getDashboard(params: {
   municipioId?: number;

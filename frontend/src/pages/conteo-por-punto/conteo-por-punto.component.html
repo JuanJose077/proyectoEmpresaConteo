@@ -1,101 +1,329 @@
 <h2>Conteo por punto</h2>
 
-<section class="filters">
-  <label>
-    Municipio ID
-    <input type="number" [(ngModel)]="filters.municipioId" (change)="loadPuntos()" />
-  </label>
+<section class="filters-card">
+  <div class="filters-grid">
 
-  <label>
-    Punto
-    <select [(ngModel)]="filters.puntoId">
-      <option [ngValue]="undefined">Seleccione</option>
-        <option *ngFor="let p of puntos" [ngValue]="p.id">
-        {{ p.id }} - {{ p.nombre }}
-        </option>
-    </select>
-  </label>
+    <div class="field">
+      <label>Departamento *</label>
+      <select [(ngModel)]="departamentoSeleccionado" (change)="onDepartamentoChange()">
+        <option value="">Seleccionar...</option>
+        <option *ngFor="let d of departamentos" [value]="d">{{ d }}</option>
+      </select>
+    </div>
 
-  <label>
-    Fecha inicio
-    <input type="date" [(ngModel)]="filters.fechaInicio" />
-  </label>
+    <div class="field">
+      <label>Municipio</label>
+      <select [(ngModel)]="municipioSeleccionadoId" (change)="onMunicipioChange()">
+        <option [ngValue]="null">Todos</option>
+        <option *ngFor="let m of municipios" [ngValue]="m.id">{{ m.nombre }}</option>
+      </select>
+    </div>
 
-  <label>
-    Fecha fin
-    <input type="date" [(ngModel)]="filters.fechaFin" />
-  </label>
+    <div class="field">
+      <label>Punto</label>
+      <select [(ngModel)]="puntoSeleccionadoId" (change)="onPuntoChange()" [disabled]="!municipioSeleccionadoId">
+        <option [ngValue]="null">Todos</option>
+        <option *ngFor="let p of puntos" [ngValue]="p.id">{{ p.nombre }}</option>
+      </select>
+    </div>
 
-  <label>
-    Jornada
-    <select [(ngModel)]="filters.jornada">
-      <option value="GENERAL">GENERAL</option>
-      <option value="PICO">PICO</option>
-      <option value="VALLE">VALLE</option>
-    </select>
-  </label>
+    <div class="field">
+      <label>Fecha inicio</label>
+      <input type="date" [(ngModel)]="filters.fechaInicio" (change)="onFilterChange()" />
+    </div>
 
-  <label>
-    Día
-    <select [(ngModel)]="filters.dia">
-      <option value="TODOS">TODOS</option>
-      <option value="HABIL">HÁBIL</option>
-      <option value="NO_HABIL">NO HÁBIL</option>
-    </select>
-  </label>
+    <div class="field">
+      <label>Fecha fin</label>
+      <input type="date" [(ngModel)]="filters.fechaFin" (change)="onFilterChange()" />
+    </div>
 
-  <button (click)="load()">Aplicar</button>
+    <div class="field">
+      <label>Jornada</label>
+      <select [(ngModel)]="filters.jornada" (change)="onFilterChange()">
+        <option value="GENERAL">General</option>
+        <option value="PICO">Pico</option>
+        <option value="VALLE">Valle</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Día</label>
+      <select [(ngModel)]="filters.dia" (change)="onFilterChange()">
+        <option value="TODOS">Todos</option>
+        <option value="HABIL">Hábil</option>
+        <option value="NO_HABIL">No hábil</option>
+      </select>
+    </div>
+
+    <div class="btn-container">
+      <button
+        class="btn-primary"
+        (click)="load()"
+        [disabled]="!departamentoSeleccionado || loading || loadingCatalogo"
+      >
+        {{ loading ? 'Cargando...' : 'Consultar' }}
+      </button>
+    </div>
+
+  </div>
 </section>
 
-<h3 class="mt">Respuesta</h3>
-<h3 class="mt">Resultado</h3>
+<div *ngIf="loadingCatalogo" class="info">⏳ Cargando...</div>
+<div *ngIf="loading" class="info">⏳ Cargando datos...</div>
+<div *ngIf="error" class="error">⚠ {{ error }}</div>
 
-<div *ngIf="!data">Cargando...</div>
+<!-- ── Banner del punto seleccionado ──────────────────────── -->
+<div class="punto-banner" *ngIf="puntoSeleccionadoId && totalConteoPunto !== null && !loading">
+  <div class="punto-banner-icon">📍</div>
+  <div class="punto-banner-body">
+    <span class="punto-banner-name">{{ getPuntoNombre() }}</span>
+    <span class="punto-banner-label">Punto seleccionado</span>
+  </div>
+  <div class="punto-banner-total">
+    <span class="punto-banner-num">{{ totalConteoPunto | number }}</span>
+    <span class="punto-banner-sub">conteos totales</span>
+  </div>
+</div>
 
-<div *ngIf="data && data.table?.length">
-  <div class="kpis">
-    <div class="kpi">
-      <div class="kpi-label">Total</div>
-      <div class="kpi-value">{{ data.table[0].total }}</div>
+<!-- ── Distribución por jornada ───────────────────────────── -->
+<section class="card" *ngIf="jornadaStats.length && !loading">
+  <div class="card-header">
+    <h3>Distribución por jornada</h3>
+    <div class="subtitle">Proporción de observaciones según la franja horaria.</div>
+  </div>
+
+  <div class="jornada-chart">
+    <div class="jornada-bars">
+      <div class="jornada-row" *ngFor="let j of jornadaStats">
+        <div class="jornada-label">{{ j.label }}</div>
+        <div class="jornada-bar-track">
+          <div
+            class="jornada-bar-fill"
+            [style.width.%]="j.pct"
+            [style.background]="j.color"
+          ></div>
+        </div>
+        <div class="jornada-meta">
+          <span class="jornada-pct" [style.color]="j.color">{{ j.pct }}%</span>
+          <span class="jornada-val">{{ j.value | number }}</span>
+        </div>
+      </div>
     </div>
 
-    <div class="kpi">
-      <div class="kpi-label">Cumple</div>
-      <div class="kpi-value">{{ data.table[0].cumple }}</div>
+    <div class="jornada-donut-wrap">
+      <svg class="jornada-donut" viewBox="0 0 120 120">
+        <ng-container *ngFor="let j of jornadaStats; let i = index">
+          <circle
+            class="donut-segment"
+            cx="60" cy="60" r="44"
+            fill="transparent"
+            [attr.stroke]="j.color"
+            stroke-width="22"
+            [attr.stroke-dasharray]="(j.pct * 2.765) + ' ' + (276.5 - j.pct * 2.765)"
+            [attr.stroke-dashoffset]="getDonutOffset(i, jornadaStats)"
+          />
+        </ng-container>
+        <!-- Hueco central -->
+        <circle cx="60" cy="60" r="28" fill="white"/>
+        <text x="60" y="56" text-anchor="middle" class="donut-center-num">
+          {{ (jornadaStats[0]?.value || 0) + (jornadaStats[1]?.value || 0) | number }}
+        </text>
+        <text x="60" y="70" text-anchor="middle" class="donut-center-label">
+          Total
+        </text>
+      </svg>
+
+      <div class="jornada-legend">
+        <div class="jornada-legend-item" *ngFor="let j of jornadaStats">
+          <span class="jornada-dot" [style.background]="j.color"></span>
+          <span>{{ j.label }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Distribución por tipo de día ─────────────────────────── -->
+<section class="card" *ngIf="diaStats.length && !loading">
+  <div class="card-header">
+    <h3>Distribución por tipo de día</h3>
+    <div class="subtitle">Proporción de observaciones según día hábil o no hábil.</div>
+  </div>
+
+  <div class="jornada-chart">
+    <div class="jornada-bars">
+      <div class="jornada-row" *ngFor="let j of diaStats">
+        <div class="jornada-label">{{ j.label }}</div>
+        <div class="jornada-bar-track">
+          <div
+            class="jornada-bar-fill"
+            [style.width.%]="j.pct"
+            [style.background]="j.color"
+          ></div>
+        </div>
+        <div class="jornada-meta">
+          <span class="jornada-pct" [style.color]="j.color">{{ j.pct }}%</span>
+          <span class="jornada-val">{{ j.value | number }}</span>
+        </div>
+      </div>
     </div>
 
-    <div class="kpi">
-      <div class="kpi-label">% Cumplimiento</div>
-      <div class="kpi-value">{{ data.table[0].compliancePercent }}%</div>
+    <div class="jornada-donut-wrap">
+      <svg class="jornada-donut" viewBox="0 0 120 120">
+        <ng-container *ngFor="let j of diaStats; let i = index">
+          <circle
+            class="donut-segment"
+            cx="60" cy="60" r="44"
+            fill="transparent"
+            [attr.stroke]="j.color"
+            stroke-width="22"
+            [attr.stroke-dasharray]="(j.pct * 2.765) + ' ' + (276.5 - j.pct * 2.765)"
+            [attr.stroke-dashoffset]="getDonutOffset(i, diaStats)"
+          />
+        </ng-container>
+        <circle cx="60" cy="60" r="28" fill="white"/>
+        <text x="60" y="56" text-anchor="middle" class="donut-center-num">
+          {{ (diaStats[0]?.value || 0) + (diaStats[1]?.value || 0) | number }}
+        </text>
+        <text x="60" y="70" text-anchor="middle" class="donut-center-label">
+          Total
+        </text>
+      </svg>
+
+      <div class="jornada-legend">
+        <div class="jornada-legend-item" *ngFor="let j of diaStats">
+          <span class="jornada-dot" [style.background]="j.color"></span>
+          <span>{{ j.label }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Calendario de actividad ────────────────────────────── -->
+<section class="card">
+  <div class="card-header">
+    <h3>Calendario de actividad</h3>
+    <div class="subtitle">Actividad diaria para el punto seleccionado.</div>
+  </div>
+
+  <div class="empty-state" *ngIf="!puntoSeleccionadoId">
+    Selecciona un punto para ver la actividad diaria.
+  </div>
+
+  <div *ngIf="puntoSeleccionadoId && calendarWeeks.length">
+
+    <!-- Encabezado de meses -->
+    <div class="calendar-months-row">
+      <div class="calendar-months-offset"></div>
+      <div class="calendar-month-block"
+           *ngFor="let block of calendarMonthBlocks"
+           [style.width.px]="block.weekCount * 22">
+        {{ block.label }}
+      </div>
+    </div>
+
+    <div class="calendar">
+      <div class="calendar-weekdays">
+        <div *ngFor="let d of weekdayLabels">{{ d }}</div>
+      </div>
+      <div class="calendar-grid">
+        <ng-container *ngFor="let week of calendarWeeks">
+          <div
+            *ngFor="let day of week"
+            class="calendar-day"
+            [ngClass]="day.level"
+            [class.has-tooltip]="day.inRange"
+            [attr.data-date]="day.inRange ? formatDateLabel(day.date) : null"
+            [attr.data-count]="day.inRange ? day.count : null"
+          ></div>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item">
+        <span class="legend-swatch none"></span>
+        <span>Sin actividad</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch low"></span>
+        <span>Actividad baja</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-swatch high"></span>
+        <span>Actividad alta</span>
+      </div>
+    </div>
+
+    <!-- Mini resumen del calendario -->
+    <div class="calendar-stats" *ngIf="calendarStats">
+      <div class="cal-stat">
+        <span class="cal-stat-num">{{ calendarStats.totalConteos | number }}</span>
+        <span class="cal-stat-label">Total conteos</span>
+      </div>
+      <div class="cal-stat-divider"></div>
+      <div class="cal-stat">
+        <span class="cal-stat-num">{{ calendarStats.diasConActividad }}</span>
+        <span class="cal-stat-label">Días con actividad</span>
+      </div>
+      <div class="cal-stat-divider"></div>
+      <div class="cal-stat">
+        <span class="cal-stat-num">{{ calendarStats.diaMasActivo }}</span>
+        <span class="cal-stat-label">Día más activo ({{ calendarStats.diaMasActivoCount | number }} conteos)</span>
+      </div>
+      <div class="cal-stat-divider"></div>
+      <div class="cal-stat">
+        <span class="cal-stat-num">{{ calendarStats.promedioDiario | number }}</span>
+        <span class="cal-stat-label">Promedio diario</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="empty-state" *ngIf="puntoSeleccionadoId && !calendarWeeks.length && !loading">
+    No hay actividad en el rango seleccionado.
+  </div>
+</section>
+
+<!-- ── Ranking de puntos ───────────────────────────────────── -->
+<section class="card">
+  <div class="card-header">
+    <h3>Ranking de puntos</h3>
+    <div class="subtitle">Puntos con más observaciones (top {{ rankingLimit }}).</div>
+  </div>
+
+  <div *ngIf="ranking.length; else emptyRanking" class="ranking-list">
+    <div
+      class="ranking-item"
+      *ngFor="let item of ranking; let i = index"
+      [class.top-1]="i === 0"
+      [class.top-2]="i === 1"
+      [class.top-3]="i === 2"
+    >
+      <div class="ranking-pos-badge">
+        <span *ngIf="i === 0">🥇</span>
+        <span *ngIf="i === 1">🥈</span>
+        <span *ngIf="i === 2">🥉</span>
+        <span *ngIf="i > 2" class="ranking-num">{{ i + 1 }}</span>
+      </div>
+
+      <div class="ranking-name-wrap">
+        <span class="ranking-name" [title]="item.punto">{{ item.punto }}</span>
+      </div>
+
+      <div class="ranking-bar-wrap">
+        <div class="ranking-bar">
+          <div class="ranking-fill" [style.width.%]="barWidth(item.cantidad)"></div>
+        </div>
+        <span class="ranking-pct">{{ barWidth(item.cantidad) }}%</span>
+      </div>
+
+      <div class="ranking-count">{{ item.cantidad | number }}</div>
     </div>
   </div>
 
-  <h4>Desglose por vehículo</h4>
-
-  <table class="tbl" *ngIf="data.table[0].byVehicle?.length; else emptyVehicles">
-    <thead>
-      <tr>
-        <th>Clase vehículo</th>
-        <th>Total</th>
-        <th>Cumple</th>
-        <th>%</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let r of data.table[0].byVehicle">
-        <td>{{ r.claseVehiculo }}</td>
-        <td>{{ r.total }}</td>
-        <td>{{ r.cumple }}</td>
-        <td>{{ r.total ? ((r.cumple * 100) / r.total) : 0 | number:'1.0-2' }}%</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <ng-template #emptyVehicles>
-    <p>No hay datos para mostrar.</p>
+  <ng-template #emptyRanking>
+    <div class="empty-state">No hay datos para el ranking.</div>
   </ng-template>
-</div>
-
-<div *ngIf="data && (!data.table || data.table[0].total === 0)">
-  <p>No hay datos con esos filtros.</p>
-</div>
+</section>
