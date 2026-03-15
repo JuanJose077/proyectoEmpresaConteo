@@ -18,12 +18,7 @@ public class ReflectiveReportService {
         this.jdbc = jdbc;
     }
 
-    /**
-     * total = excluido=0
-     * cumple:
-     * - si tiene_acompanante='Sí' => conductor Sí y acompañante Sí
-     * - si no => conductor Sí
-     */
+
     public List<Map<String, Object>> byVehicle(
             String departamento,
             Integer municipioId,

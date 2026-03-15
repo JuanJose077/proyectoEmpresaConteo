@@ -18,10 +18,7 @@ public class LightsReportService {
         this.jdbc = jdbc;
     }
 
-    /**
-     * total = excluido=0
-     * cumple = ambas en 'Bueno'
-     */
+
     public List<Map<String, Object>> byVehicle(
             String departamento,
             Integer municipioId,

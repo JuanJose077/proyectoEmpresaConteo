@@ -64,9 +64,7 @@ public class ReportController {
         return LocalDate.parse(s);
     }
 
-    // =========================
-    // Conteo por punto (ranking)
-    // =========================
+
     @GetMapping("/conteo-por-punto")
     public List<ConteoPorPuntoService.ConteoPorPuntoItem> conteoPorPunto(
             @RequestParam(required = false) String departamento,
@@ -95,9 +93,7 @@ public class ReportController {
         );
     }
 
-    // =========================
-    // Actividad diaria por punto
-    // =========================
+
     @GetMapping("/conteo-por-punto/actividad-diaria")
     public List<ConteoPorPuntoService.ActividadDiariaItem> actividadDiariaPorPunto(
             @RequestParam(required = false) String departamento,
@@ -125,9 +121,7 @@ public class ReportController {
         );
     }
 
-    // =========================
-    // Helmet date range
-    // =========================
+
     @GetMapping("/helmet/date-range")
     public Map<String, Object> helmetDateRange(
             @RequestParam(required = false) Integer municipioId,
@@ -136,9 +130,7 @@ public class ReportController {
         return helmetReportService.getHelmetDateRange(municipioId, puntoId);
     }
 
-    // =========================
-    // Helmet
-    // =========================
+
     @GetMapping("/helmet")
     public Map<String, Object> helmet(
             @RequestParam(required = false) String departamento,
@@ -165,9 +157,7 @@ public class ReportController {
         );
     }
 
-    // =========================
-    // Seatbelt
-    // =========================
+
     @GetMapping("/seatbelt")
     public Map<String, Object> seatbelt(
             @RequestParam(required = false) String departamento,
@@ -194,9 +184,6 @@ public class ReportController {
         );
     }
 
-    // =========================
-    // Speed
-    // =========================
     @GetMapping("/speed")
     public Map<String, Object> speed(
             @RequestParam(required = false) String departamento,
@@ -223,9 +210,7 @@ public class ReportController {
         );
     }
 
-    // =========================
-    // Lights
-    // =========================
+
     @GetMapping("/lights")
     public Map<String, Object> lights(
             @RequestParam(required = false) String departamento,
@@ -252,9 +237,7 @@ public class ReportController {
         );
     }
 
-    // =========================
-    // Reflective
-    // =========================
+
     @GetMapping("/reflective")
     public Map<String, Object> reflective(
             @RequestParam(required = false) String departamento,
@@ -282,9 +265,7 @@ public class ReportController {
     }
 
 
-    // =========================
-    // Maneuvers
-    // =========================
+
     @GetMapping("/maneuvers")
     public Map<String, Object> maneuvers(
             @RequestParam(required = false) String departamento,
@@ -311,9 +292,7 @@ public class ReportController {
         );
     }
 
-    // =========================
-    // Pedestrian crossing
-    // =========================
+
     @GetMapping("/pedestrian-crossing")
     public Map<String, Object> pedestrianCrossing(
             @RequestParam(required = false) String departamento,
@@ -340,9 +319,7 @@ public class ReportController {
         );
     }
 
-    // =========================
-    // Child restraint
-    // =========================
+
     @GetMapping("/child-restraint")
     public Map<String, Object> childRestraint(
             @RequestParam(required = false) String departamento,
@@ -369,9 +346,7 @@ public class ReportController {
         );
     }
 
-    // =========================
-    // Overoccupancy
-    // =========================
+
     @GetMapping("/overoccupancy")
     public Map<String, Object> overoccupancy(
             @RequestParam(required = false) String departamento,
@@ -398,9 +373,7 @@ public class ReportController {
         );
     }
 
-    // =========================
-    // Distractores (UNIFICADO)
-    // =========================
+
     @GetMapping("/distractores")
     public Map<String, Object> distractores(
             @RequestParam(required = false) String departamento,

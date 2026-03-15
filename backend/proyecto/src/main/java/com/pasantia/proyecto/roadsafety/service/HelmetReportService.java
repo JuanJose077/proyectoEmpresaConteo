@@ -16,11 +16,7 @@ public class HelmetReportService {
         this.jdbc = jdbc;
     }
 
-    /**
-     * Cumple:
-     * - Conductor usa casco = 'Sí'
-     * Nota: tu regla real de casco puede extenderse luego si lo necesitas.
-     */
+
     public List<Map<String, Object>> getHelmetStats(
             String departamento,
             Integer municipioId,
@@ -60,15 +56,11 @@ public class HelmetReportService {
             ORDER BY total DESC
         """);
 
-        // Esto ya retorna [{"claseVehiculo","total","cumple"}...]
-        // Tu ReportResponseBuilder ya agrega noCumple y %.
+
         return jdbc.queryForList(sql.toString(), params.toArray());
     }
 
-    /**
-     * Si ya lo usabas para date-range, déjalo igual (esto es opcional).
-     * Si no lo necesitas, lo puedes borrar.
-     */
+
     public Map<String, Object> getHelmetDateRange(Integer municipioId, Integer puntoId) {
         StringBuilder sql = new StringBuilder("""
             SELECT

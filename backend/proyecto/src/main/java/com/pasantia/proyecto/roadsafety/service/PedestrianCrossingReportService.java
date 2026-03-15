@@ -18,11 +18,7 @@ public class PedestrianCrossingReportService {
         this.jdbc = jdbc;
     }
 
-    /**
-     * total = excluido=0 (unidad: peatones)
-     * cumple = NO cruce indebido
-     * (o si usas otra regla: ej. "usa_puente_peatonal = 'Sí' cuando aplica", lo ajustamos)
-     */
+
     public List<Map<String, Object>> getStats(
             String departamento,
             Integer municipioId,
@@ -55,7 +51,6 @@ public class PedestrianCrossingReportService {
         List<Object> params = new ArrayList<>();
         SqlFilterUtil.applyFilters(sql, params, departamento, municipioId, puntoId, fechaInicio, fechaFin, jornada, dia);
 
-        // no agrupamos por clase porque es solo "Peatón"
         return jdbc.queryForList(sql.toString(), params.toArray());
     }
 }

@@ -18,12 +18,7 @@ public final class SqlFilterUtil {
         """;
     }
 
-    /**
-     * Aplica filtros siguiendo prioridad:
-     * 1) puntoId (coordenada_id)
-     * 2) municipioId
-     * 3) departamento (municipio.departamento)
-     */
+
     public static void applyFilters(
             StringBuilder sql,
             List<Object> params,

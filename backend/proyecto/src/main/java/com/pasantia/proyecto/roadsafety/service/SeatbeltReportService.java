@@ -18,12 +18,7 @@ public class SeatbeltReportService {
         this.jdbc = jdbc;
     }
 
-    /**
-     * total = registros válidos (excluido=0)
-     * cumple:
-     * - si tiene acompañante = 'Sí' => conductor 'Sí' y acompañante 'Sí'
-     * - si no => conductor 'Sí'
-     */
+
     public List<Map<String, Object>> byVehicle(
             String departamento,
             Integer municipioId,

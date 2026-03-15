@@ -18,11 +18,7 @@ public class ChildRestraintReportService {
         this.jdbc = jdbc;
     }
 
-    /**
-     * Unidad: NIÑOS
-     * total = suma categorías de niños (solo excluido=0)
-     * cumple = niños en silla de retención (solo excluido=0)
-     */
+
     public List<Map<String, Object>> byVehicle(
             String departamento,
             Integer municipioId,

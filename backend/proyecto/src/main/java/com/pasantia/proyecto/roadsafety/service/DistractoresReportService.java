@@ -16,14 +16,7 @@ public class DistractoresReportService {
         this.jdbc = jdbc;
     }
 
-    /**
-     * Devuelve 2 filas:
-     * - "Conductor"
-     * - "Peatón"
-     *
-     * total = excluido=0
-     * cumple = ninguna='Sí'
-     */
+
     public List<Map<String, Object>> resumen(
             String departamento,
             Integer municipioId,

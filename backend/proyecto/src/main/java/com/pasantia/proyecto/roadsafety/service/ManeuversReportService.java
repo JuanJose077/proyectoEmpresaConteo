@@ -18,9 +18,7 @@ public class ManeuversReportService {
         this.jdbc = jdbc;
     }
 
-    /**
-     * cumple = ninguna='Sí'
-     */
+
     public List<Map<String, Object>> byVehicle(
             String departamento,
             Integer municipioId,

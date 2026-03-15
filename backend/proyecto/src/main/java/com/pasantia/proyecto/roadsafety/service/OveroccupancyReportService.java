@@ -18,16 +18,7 @@ public class OveroccupancyReportService {
         this.jdbc = jdbc;
     }
 
-    /**
-     * REGLA (estricta):
-     * total = registros válidos (excluido=0)
-     *
-     * cumple si NO ocurre ninguno:
-     * 1) ocupantes > capacidad_vehiculo
-     *    donde ocupantes = 1 (conductor) + (acompañantes si tiene_acompanante='Sí')
-     * 2) carga_sobredimensionada = 'Sí'
-     * 3) (solo motos) ninos_en_motocicleta='Sí' y (ninos_sin_casco > 0 o ninos_brazos_piernas > 0)
-     */
+
     public List<Map<String, Object>> byVehicle(
             String departamento,
             Integer municipioId,
