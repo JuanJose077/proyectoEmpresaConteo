@@ -9,8 +9,9 @@ export interface AdminUser {
   role: UserRole;
   active: boolean;
   mustChangePassword: boolean;
-  createdBy: number | null;
+  createdByEmail: string | null;
   createdAt: string | null;
+  firstAdmin: boolean;
 }
 
 export interface CreateUserRequest {
@@ -19,7 +20,14 @@ export interface CreateUserRequest {
   temporaryPassword?: string;
 }
 
-export interface CreateUserResponse extends AdminUser {
+export interface CreateUserResponse {
+  id: number;
+  email: string;
+  role: UserRole;
+  active: boolean;
+  mustChangePassword: boolean;
+  createdBy: number | null;
+  createdAt: string | null;
   temporaryPassword: string;
 }
 

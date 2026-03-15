@@ -14,10 +14,11 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
-  email = '';
+  email    = '';
   password = '';
-  loading = false;
-  error = '';
+  loading  = false;
+  error    = '';
+  showPassword = false;
 
   constructor(
     private router: Router,
@@ -34,7 +35,7 @@ export class LoginComponent {
   }
 
   login() {
-    this.error = '';
+    this.error   = '';
     this.loading = true;
 
     this.authService.login(this.email, this.password).subscribe({
@@ -49,7 +50,22 @@ export class LoginComponent {
       },
       error: (err: HttpErrorResponse) => {
         this.loading = false;
-        this.error = err.error?.message || err.error?.error || 'Credenciales incorrectas';
+        const msg = err.error?.message || err.error?.error || '';
+
+        // Mensajes amigables según código/texto del servidor
+        if (err.status === 401 || msg.toLowerCase().includes('credencial') || msg.toLowerCase().includes('invalid') || msg.toLowerCase().includes('incorrect')) {
+          this.error = 'Correo o contraseña incorrectos. Verifica tus datos e intenta de nuevo.';
+        } else if (err.status === 404 || msg.toLowerCase().includes('no encontrado') || msg.toLowerCase().includes('not found')) {
+          this.error = 'No existe una cuenta con ese correo electrónico.';
+        } else if (err.status === 429) {
+          this.error = 'Demasiados intentos fallidos. Espera unos minutos antes de intentar de nuevo.';
+        } else if (err.status === 0 || err.status >= 500) {
+          this.error = 'No se pudo conectar con el servidor. Intenta más tarde.';
+        } else if (msg) {
+          this.error = msg;
+        } else {
+          this.error = 'Ocurrió un error inesperado. Intenta de nuevo.';
+        }
       },
     });
   }

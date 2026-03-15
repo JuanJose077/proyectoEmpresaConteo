@@ -60,6 +60,16 @@ public class AdminUserService {
     }
 
     public void deactivateUser(long id) {
+        User target = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if ("ADMIN".equalsIgnoreCase(target.role())) {
+            Long firstAdminId = findFirstAdminId();
+            if (firstAdminId != null && firstAdminId == id) {
+                throw new IllegalStateException("The first administrator cannot be deleted.");
+            }
+        }
+
         userRepository.deactivateUser(id);
     }
 
@@ -91,6 +101,18 @@ public class AdminUserService {
 
     private String normalizeEmail(String email) {
         return email == null ? null : email.trim().toLowerCase();
+    }
+
+    private Long findFirstAdminId() {
+        List<User> users = userRepository.findAll();
+        Long firstId = null;
+        for (User user : users) {
+            if (!"ADMIN".equalsIgnoreCase(user.role())) continue;
+            if (firstId == null || (user.id() != null && user.id() < firstId)) {
+                firstId = user.id();
+            }
+        }
+        return firstId;
     }
 
     private String generateTemporaryPassword() {

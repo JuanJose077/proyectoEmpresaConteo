@@ -1,103 +1,224 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+/* ── Reset & Base ────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ── Layout ──────────────────────────────────────────────── */
 .app-layout {
   display: flex;
   height: 100vh;
-  background: #f5f7fa;
-  font-family: "Inter", sans-serif;
+  background: #f4f7fa;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  overflow: hidden;
 }
 
+/* ── Sidebar ─────────────────────────────────────────────── */
 .sidebar {
-  width: 240px;
-  background: #0f172a;
-  color: white;
+  width: 232px;
+  flex-shrink: 0;
+  background: #0a1628;
   display: flex;
   flex-direction: column;
-  padding: 20px 16px;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+
+  /* Textura sutil */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0);
+    background-size: 20px 20px;
+    pointer-events: none;
+  }
+
+  /* Borde derecho con glow */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(79, 110, 247, 0.4) 30%,
+      rgba(79, 110, 247, 0.2) 70%,
+      transparent 100%
+    );
+  }
 }
 
+/* ── Logo ────────────────────────────────────────────────── */
 .logo {
-  margin-bottom: 30px;
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 8px;
+
+  h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    /* Ícono de escudo */
+    &::before {
+      content: '';
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #4f6ef7 0%, #6b85f8 100%);
+      display: inline-flex;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(79, 110, 247, 0.45);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+  }
 }
 
-.logo h2 {
-  font-size: 18px;
-  font-weight: 600;
-}
-
+/* ── Nav Menu ────────────────────────────────────────────── */
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;
+  padding: 4px 12px;
+  flex: 1;
+
+  a {
+    text-decoration: none;
+    color: rgba(255,255,255,0.5);
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    transition:
+      color      0.18s ease,
+      background 0.18s ease;
+    position: relative;
+
+    &:hover {
+      color: rgba(255,255,255,0.85);
+      background: rgba(255,255,255,0.06);
+    }
+
+    &.active {
+      color: #fff;
+      background: rgba(79, 110, 247, 0.18);
+
+      /* Indicador izquierdo */
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 18px;
+        border-radius: 0 3px 3px 0;
+        background: #4f6ef7;
+      }
+    }
+  }
 }
 
+/* ── Admin Section ───────────────────────────────────────── */
 .menu-admin {
-  margin-top: 12px;
+  margin-top: 8px;
   padding-top: 12px;
-  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  border-top: 1px solid rgba(255,255,255,0.06);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;
 }
 
 .menu-title {
-  font-size: 12px;
+  font-size: 10.5px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #94a3b8;
-  padding: 0 12px;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.25);
+  padding: 4px 12px 6px;
 }
 
-.menu a {
-  text-decoration: none;
-  color: #cbd5e1;
-  padding: 10px 12px;
-  border-radius: 8px;
-  transition: 0.2s;
-  font-size: 14px;
-}
-
-.menu a:hover {
-  background: #1e293b;
-  color: white;
-}
-
-.menu a.active {
-  background: #2563eb;
-  color: white;
-}
-
+/* ── Main Area ───────────────────────────────────────────── */
 .main {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
 }
 
+/* ── Header ──────────────────────────────────────────────── */
 .header {
-  height: 60px;
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
+  height: 56px;
+  background: #fff;
+  border-bottom: 1px solid #e8eff5;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
+  flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(6,13,26,0.05);
 }
 
 .title {
+  font-size: 13.5px;
   font-weight: 600;
-  font-size: 16px;
+  color: #3a5470;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* ── Logout Button ───────────────────────────────────────── */
+.logout {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1.5px solid #fecdd3;
+  background: #fff1f2;
+  color: #be123c;
+  font-family: 'DM Sans', inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background  0.15s ease,
+    border-color 0.15s ease,
+    transform   0.1s ease;
+
+  &:hover {
+    background: #ffe4e6;
+    border-color: #fda4af;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
 }
 
 .content {
   flex: 1;
-  padding: 24px;
   overflow: auto;
-}
 
-.logout {
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  color: #0f172a;
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-weight: 600;
-  cursor: pointer;
+  &::-webkit-scrollbar { width: 8px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: #c5d4e0;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+    &:hover { background: #8faabf; background-clip: content-box; }
+  }
 }

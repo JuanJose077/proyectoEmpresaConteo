@@ -1,34 +1,67 @@
 <div class="admin-metas">
-  <div class="filters">
-    <label>
-      Departamento
-      <select [(ngModel)]="departamentoSeleccionado" (change)="onDepartamentoChange()">
-        <option value="">Seleccione...</option>
-        <option *ngFor="let d of departamentos" [value]="d">{{ d }}</option>
-      </select>
-    </label>
 
-    <label>
-      Municipio
-      <select [(ngModel)]="municipioSeleccionadoId" (change)="onMunicipioChange()" [disabled]="!departamentoSeleccionado">
-        <option value="">Seleccione...</option>
-        <option *ngFor="let m of municipios" [ngValue]="m.id">{{ m.nombre }}</option>
-      </select>
-    </label>
-
-    <button class="btn" (click)="saveChanges()" [disabled]="saving || !hasChanges()">{{ saving ? 'Guardando...' : 'Guardar cambios' }}</button>
+  <!-- Header -->
+  <div class="page-header">
+    <h2>Gestión de Metas</h2>
+    <p>Configura las metas por comportamiento vial, municipio y tipo de vehículo.</p>
   </div>
 
-  <div class="status" *ngIf="error">{{ error }}</div>
-  <div class="status success" *ngIf="success">{{ success }}</div>
+  <!-- Filtros -->
+  <div class="filters-card">
+    <div class="filters">
+      <div class="field">
+        <label>Departamento</label>
+        <select [(ngModel)]="departamentoSeleccionado" (change)="onDepartamentoChange()">
+          <option value="">Seleccione...</option>
+          <option *ngFor="let d of departamentos" [value]="d">{{ d }}</option>
+        </select>
+      </div>
 
-  <div class="loading" *ngIf="loadingCatalogo || loadingMetas">Cargando...</div>
+      <div class="field">
+        <label>Municipio</label>
+        <select
+          [(ngModel)]="municipioSeleccionadoId"
+          (change)="onMunicipioChange()"
+          [disabled]="!departamentoSeleccionado"
+        >
+          <option value="">Seleccione...</option>
+          <option *ngFor="let m of municipios" [ngValue]="m.id">{{ m.nombre }}</option>
+        </select>
+      </div>
 
+      <button
+        class="btn-save"
+        (click)="saveChanges()"
+        [disabled]="saving || !hasChanges()"
+      >
+        {{ saving ? '⏳ Guardando...' : '💾 Guardar cambios' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Alertas -->
+  <div class="alert alert-error" *ngIf="error">
+    <span class="alert-icon">⚠️</span>
+    {{ error }}
+  </div>
+
+  <div class="alert alert-success" *ngIf="success">
+    <span class="alert-icon">✅</span>
+    {{ success }}
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loadingCatalogo || loadingMetas">
+    <div class="spinner"></div>
+    Cargando información...
+  </div>
+
+  <!-- Tabla -->
   <div class="table-wrap" *ngIf="municipioSeleccionadoId && !loadingMetas">
     <table>
       <thead>
         <tr>
-          <th>Comportamiento</th>
+          <th>Comportamiento vial</th>
           <th *ngFor="let v of vehicleColumns">{{ v }}</th>
         </tr>
       </thead>
@@ -67,7 +100,10 @@
     </table>
   </div>
 
-  <div class="empty" *ngIf="!municipioSeleccionadoId && !loadingMetas">
-    Selecciona un municipio para cargar las metas.
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="!municipioSeleccionadoId && !loadingMetas && !loadingCatalogo">
+    <div class="empty-icon">🗺️</div>
+    Selecciona un departamento y municipio para cargar y editar las metas.
   </div>
+
 </div>

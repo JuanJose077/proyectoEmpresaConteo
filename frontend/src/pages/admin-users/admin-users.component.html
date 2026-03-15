@@ -1,50 +1,90 @@
-<div class="admin-users">
+﻿<div class="admin-users">
+
+  <!-- Header -->
   <div class="header">
     <div>
       <h1>Usuarios</h1>
-      <p>Administra cuentas y contrase�as temporales</p>
+      <p>Administra cuentas y contraseñas</p>
     </div>
     <div class="actions">
-      <button class="btn" routerLink="/admin/create-user">Crear usuario</button>
-      <button class="btn secondary" (click)="load()">Recargar</button>
+      <button class="btn primary" routerLink="/admin/create-user">+ Crear usuario</button>
+      <button class="btn secondary" (click)="load()">↺ Recargar</button>
     </div>
   </div>
 
-  <div class="error" *ngIf="error">{{ error }}</div>
-
-  <div class="table" *ngIf="!loading">
-    <div class="row head">
-      <div>ID</div>
-      <div>Email</div>
-      <div>Rol</div>
-      <div>Activo</div>
-      <div>Cambio requerido</div>
-      <div>Creado por</div>
-      <div>Creado</div>
-      <div>Acciones</div>
-    </div>
-
-    <div class="row" *ngFor="let user of users">
-      <div>{{ user.id }}</div>
-      <div>{{ user.email }}</div>
-      <div>{{ user.role }}</div>
-      <div>
-        <span [class.badge-active]="user.active" [class.badge-inactive]="!user.active">
-          {{ user.active ? 'Activo' : 'Inactivo' }}
-        </span>
-      </div>
-      <div>{{ user.mustChangePassword ? 'S�' : 'No' }}</div>
-      <div>{{ user.createdBy ?? '-' }}</div>
-      <div>{{ user.createdAt ? (user.createdAt | date:'short') : '-' }}</div>
-      <div class="row-actions">
-        <button class="btn small" (click)="resetPassword(user)">Reset</button>
-        <button class="btn small danger" (click)="deactivate(user)" [disabled]="!user.active">Desactivar</button>
-      </div>
-      <div class="temp" *ngIf="tempPasswords.get(user.id)">
-        Temporal: <strong>{{ tempPasswords.get(user.id) }}</strong>
-      </div>
-    </div>
+  <!-- Error -->
+  <div class="alert alert-error" *ngIf="error">
+    ⚠️ {{ error }}
   </div>
 
-  <div class="loading" *ngIf="loading">Cargando usuarios...</div>
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    Cargando usuarios...
+  </div>
+
+  <!-- Tabla -->
+  <div class="table-wrap" *ngIf="!loading">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Estado</th>
+          <th>Cambio requerido</th>
+          <th>Creado por</th>
+          <th>Creado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let user of users">
+
+          <!-- Fila principal -->
+          <tr>
+            <td class="td-id">{{ user.id }}</td>
+            <td class="td-email">{{ user.email }}</td>
+            <td class="td-role">{{ user.role }}</td>
+            <td>
+              <span class="badge" [class.badge-active]="user.active" [class.badge-inactive]="!user.active">
+                {{ user.active ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td>
+              <span class="badge badge-warning" *ngIf="user.mustChangePassword">Pendiente</span>
+              <span *ngIf="!user.mustChangePassword" style="color: var(--navy-400); font-size: 12px;">—</span>
+            </td>
+            <td class="td-date">{{ user.createdByEmail ?? '—' }}</td>
+            <td class="td-date">{{ user.createdAt ? (user.createdAt | date:'dd/MM/yy HH:mm') : '—' }}</td>
+            <td>
+              <div class="row-actions">
+                <button class="btn secondary small" (click)="resetPassword(user)">🔑 Reset</button>
+                <button
+                  class="btn danger small"
+                  (click)="deactivate(user)"
+                  [disabled]="!user.active || user.firstAdmin"
+                  [title]="user.firstAdmin ? 'El primer administrador no puede ser desactivado' : ''"
+                >
+                  Desactivar
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Fila contraseña temporal -->
+          <tr class="temp-row" *ngIf="tempPasswords.get(user.id)">
+            <td colspan="8">
+              <div class="temp-password">
+                <span class="temp-label">🔐 Contraseña temporal</span>
+                <span class="temp-value">{{ tempPasswords.get(user.id) }}</span>
+              </div>
+            </td>
+          </tr>
+
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+
 </div>

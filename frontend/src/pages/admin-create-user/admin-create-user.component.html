@@ -1,41 +1,185 @@
-<div class="create-user">
-  <div class="header">
-    <div>
-      <h1>Crear usuario</h1>
-      <p>Define un usuario con contrase�a temporal</p>
+﻿<div class="page-wrapper">
+
+  <!-- ── Cabecera ─────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-icon">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="10" cy="7" r="4" stroke="currentColor" stroke-width="1.7"/>
+          <path d="M2 21c0-4 3.6-7 8-7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          <circle cx="19" cy="17" r="1.5" fill="currentColor"/>
+          <path d="M19 13.5V15.5M19 18.5V20.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          <circle cx="19" cy="17" r="4.5" stroke="currentColor" stroke-width="1.7"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Crear usuario</h1>
+        <p class="page-subtitle">Define un usuario nuevo con contraseña temporal.</p>
+      </div>
     </div>
-    <button class="btn secondary" (click)="back()">Volver</button>
-  </div>
-
-  <form (ngSubmit)="submit()" #f="ngForm">
-    <label>
-      Email
-      <input name="email" [(ngModel)]="email" type="email" required />
-    </label>
-
-    <label>
-      Rol
-      <select name="role" [(ngModel)]="role" required>
-        <option value="USER">USER</option>
-        <option value="ADMIN">ADMIN</option>
-      </select>
-    </label>
-
-    <label>
-      Contrase�a temporal
-      <input name="temporaryPassword" [(ngModel)]="temporaryPassword" type="text" />
-      <button type="button" class="btn small" (click)="generateTemp()">Generar</button>
-    </label>
-
-    <button class="btn" [disabled]="f.invalid || loading">
-      {{ loading ? 'Creando...' : 'Crear usuario' }}
+    <button class="btn-back" type="button" (click)="back()">
+      <svg viewBox="0 0 20 20" fill="none"><path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Volver
     </button>
-
-    <div class="error" *ngIf="error">{{ error }}</div>
-  </form>
-
-  <div class="created" *ngIf="created">
-    <strong>Usuario creado:</strong> {{ created.email }}
-    <div>Contrase�a temporal: <span>{{ created.temporaryPassword }}</span></div>
   </div>
+
+  <!-- ── Card formulario ──────────────────────────────────── -->
+  <div class="form-card">
+
+    <form (ngSubmit)="submit()" #f="ngForm" novalidate>
+
+      <!-- Email -->
+      <div class="field" [class.field-error]="emailCtrl.invalid && emailCtrl.touched" [class.field-success]="emailCtrl.valid && emailCtrl.touched">
+        <label for="email">
+          Correo electrónico
+          <span class="required">*</span>
+        </label>
+        <div class="input-wrap">
+          <svg class="input-icon" viewBox="0 0 20 20" fill="none">
+            <path d="M2.5 5.5A1.5 1.5 0 014 4h12a1.5 1.5 0 011.5 1.5v9A1.5 1.5 0 0116 16H4a1.5 1.5 0 01-1.5-1.5v-9z" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M2.5 6l7.5 5 7.5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            [(ngModel)]="email"
+            #emailCtrl="ngModel"
+            required
+            email
+            placeholder="usuario@entidad.gov.co"
+          />
+        </div>
+        <div class="field-hint" *ngIf="emailCtrl.invalid && emailCtrl.touched">
+          <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3.5M8 11v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span *ngIf="emailCtrl.errors?.['required']">El correo es obligatorio.</span>
+          <span *ngIf="emailCtrl.errors?.['email']">Ingresa un correo válido.</span>
+        </div>
+      </div>
+
+      <!-- Rol -->
+      <div class="field">
+        <label for="role">
+          Rol
+          <span class="required">*</span>
+        </label>
+        <div class="role-options">
+          <label class="role-card" [class.selected]="role === 'USER'">
+            <input type="radio" name="role" [(ngModel)]="role" value="USER" required/>
+            <div class="role-card-body">
+              <svg viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="7" r="3.5" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M3 18c0-3.3 3.1-6 7-6s7 2.7 7 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <span class="role-name">Usuario</span>
+              <span class="role-desc">Acceso de solo lectura</span>
+            </div>
+            <div class="role-check">
+              <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7.5" stroke="currentColor" stroke-width="1"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </label>
+
+          <label class="role-card" [class.selected]="role === 'ADMIN'">
+            <input type="radio" name="role" [(ngModel)]="role" value="ADMIN" required/>
+            <div class="role-card-body">
+              <svg viewBox="0 0 20 20" fill="none">
+                <path d="M10 2l1.8 5.5H17l-4.5 3.3 1.7 5.2L10 13l-4.2 3 1.7-5.2L3 7.5h5.2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+              <span class="role-name">Administrador</span>
+              <span class="role-desc">Acceso total al sistema</span>
+            </div>
+            <div class="role-check">
+              <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7.5" stroke="currentColor" stroke-width="1"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Contraseña temporal -->
+      <div class="field">
+        <label for="temporaryPassword">Contraseña temporal</label>
+        <div class="temp-pass-row">
+          <div class="input-wrap" style="flex:1">
+            <svg class="input-icon" viewBox="0 0 20 20" fill="none">
+              <rect x="4" y="9" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M7 9V6.5a3 3 0 016 0V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="10" cy="13.5" r="1.5" fill="currentColor"/>
+            </svg>
+            <input
+              id="temporaryPassword"
+              name="temporaryPassword"
+              [(ngModel)]="temporaryPassword"
+              type="text"
+              placeholder="Se generará automáticamente si no se completa"
+              class="font-mono"
+            />
+          </div>
+          <button type="button" class="btn-generate" (click)="generateTemp()">
+            <svg viewBox="0 0 20 20" fill="none">
+              <path d="M4 10a6 6 0 1110.2-4.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+              <path d="M14 3l.2 3-3 .2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Generar
+          </button>
+        </div>
+        <p class="field-note">Si dejas el campo vacío se generará una contraseña automática.</p>
+      </div>
+
+      <!-- Error servidor -->
+      <div class="server-error" *ngIf="error" role="alert">
+        <svg viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M10 6.5V10.5M10 13.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <strong>No se pudo crear el usuario</strong>
+          <span>{{ error }}</span>
+        </div>
+      </div>
+
+      <!-- Botón submit -->
+      <div class="form-actions">
+        <button class="btn-submit" type="submit" [disabled]="f.invalid || loading">
+          <span class="btn-spinner" *ngIf="loading">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.3)" stroke-width="2.5"/><path d="M12 3a9 9 0 019 9" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </span>
+          <svg *ngIf="!loading" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="7" r="3.5" stroke="white" stroke-width="1.6"/>
+            <path d="M3 18c0-3.3 3.1-6 7-6s7 2.7 7 6" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M15 4v4M13 6h4" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          {{ loading ? 'Creando...' : 'Crear usuario' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- ── Resultado: usuario creado ────────────────────────── -->
+  <div class="created-banner" *ngIf="created">
+    <div class="created-icon">
+      <svg viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" fill="#22c55e" opacity="0.15"/>
+        <circle cx="12" cy="12" r="10" stroke="#22c55e" stroke-width="1.5"/>
+        <path d="M7.5 12l3 3 6-6" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="created-body">
+      <span class="created-title">¡Usuario creado exitosamente!</span>
+      <span class="created-email">{{ created.email }}</span>
+    </div>
+    <div class="created-pass-block">
+      <span class="created-pass-label">Contraseña temporal</span>
+      <div class="created-pass-row">
+        <span class="created-pass-value">{{ created.temporaryPassword }}</span>
+        <button type="button" class="btn-copy" (click)="copyPassword()" [class.copied]="copied">
+          <svg *ngIf="!copied" viewBox="0 0 20 20" fill="none"><rect x="7" y="7" width="10" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M4 13V5a2 2 0 012-2h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg *ngIf="copied"  viewBox="0 0 20 20" fill="none"><path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          {{ copied ? 'Copiado' : 'Copiar' }}
+        </button>
+      </div>
+      <p class="created-pass-note">Comparte esta contraseña con el usuario. Deberá cambiarla en su primer ingreso.</p>
+    </div>
+  </div>
+
 </div>

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,8 +31,25 @@ public class AdminController {
 
     @GetMapping("/users")
     public List<UserSummary> listUsers() {
-        return adminUserService.listUsers().stream()
-                .map(AdminController::toSummary)
+        List<User> users = adminUserService.listUsers();
+        Map<Long, String> emailById = new HashMap<>();
+        for (User user : users) {
+            if (user.id() != null) {
+                emailById.put(user.id(), user.email());
+            }
+        }
+
+        Long firstAdminId = null;
+        for (User user : users) {
+            if (!"ADMIN".equalsIgnoreCase(user.role())) continue;
+            if (firstAdminId == null || (user.id() != null && user.id() < firstAdminId)) {
+                firstAdminId = user.id();
+            }
+        }
+
+        Long finalFirstAdminId = firstAdminId;
+        return users.stream()
+                .map(user -> toSummary(user, emailById, finalFirstAdminId))
                 .toList();
     }
 
@@ -67,8 +85,14 @@ public class AdminController {
 
     @PatchMapping("/users/{id}/deactivate")
     public Map<String, Object> deactivate(@PathVariable long id) {
-        adminUserService.deactivateUser(id);
-        return Map.of("ok", true);
+        try {
+            adminUserService.deactivateUser(id);
+            return Map.of("ok", true);
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, ex.getMessage());
+        } catch (IllegalStateException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        }
     }
 
     @PatchMapping("/users/{id}/reset-password")
@@ -105,15 +129,25 @@ public class AdminController {
         return principal.id();
     }
 
-    private static UserSummary toSummary(User user) {
+    private static UserSummary toSummary(User user, Map<Long, String> emailById, Long firstAdminId) {
+        String createdByEmail = null;
+        if (user.createdBy() != null) {
+            createdByEmail = emailById.get(user.createdBy());
+        }
+        boolean isFirstAdmin = "ADMIN".equalsIgnoreCase(user.role())
+                && firstAdminId != null
+                && user.id() != null
+                && user.id().longValue() == firstAdminId.longValue();
+
         return new UserSummary(
                 user.id(),
                 user.email(),
                 user.role(),
                 user.active(),
                 user.mustChangePassword(),
-                user.createdBy(),
-                user.createdAt()
+                createdByEmail,
+                user.createdAt(),
+                isFirstAdmin
         );
     }
 
@@ -123,8 +157,9 @@ public class AdminController {
             String role,
             boolean active,
             boolean mustChangePassword,
-            Long createdBy,
-            LocalDateTime createdAt
+            String createdByEmail,
+            LocalDateTime createdAt,
+            boolean firstAdmin
     ) {}
 
     public record CreateUserRequest(
