@@ -1,0 +1,137 @@
+.admin-metas {
+  padding: 16px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 16px;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+select {
+  height: 38px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0 10px;
+}
+
+.btn {
+  height: 38px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 14px;
+  background: #2563eb;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.status {
+  margin-bottom: 10px;
+  color: #b00020;
+}
+
+.status.success {
+  color: #166534;
+}
+
+.table-wrap {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+th, td {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 10px;
+  text-align: center;
+}
+
+th:first-child, td:first-child {
+  text-align: left;
+  min-width: 260px;
+}
+
+th {
+  background: #f8fafc;
+  font-size: 13px;
+  position: sticky;
+  top: 0;
+}
+
+.behavior {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.cell {
+  display: grid;
+  place-items: center;
+  gap: 6px;
+  min-height: 70px;
+}
+
+.cell input[type="number"] {
+  width: 90px;
+  height: 34px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #475569;
+}
+
+.cell.no-aplica {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+.cell.no-aplica input[type="number"] {
+  background: #f1f5f9;
+  color: #94a3b8;
+}
+
+.cell.no-aplica .toggle {
+  color: #94a3b8;
+}
+
+.na {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.cell.inactive {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.loading, .empty {
+  margin-top: 16px;
+  color: #475569;
+}

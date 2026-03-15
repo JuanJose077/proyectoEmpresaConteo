@@ -1,0 +1,73 @@
+<div class="admin-metas">
+  <div class="filters">
+    <label>
+      Departamento
+      <select [(ngModel)]="departamentoSeleccionado" (change)="onDepartamentoChange()">
+        <option value="">Seleccione...</option>
+        <option *ngFor="let d of departamentos" [value]="d">{{ d }}</option>
+      </select>
+    </label>
+
+    <label>
+      Municipio
+      <select [(ngModel)]="municipioSeleccionadoId" (change)="onMunicipioChange()" [disabled]="!departamentoSeleccionado">
+        <option value="">Seleccione...</option>
+        <option *ngFor="let m of municipios" [ngValue]="m.id">{{ m.nombre }}</option>
+      </select>
+    </label>
+
+    <button class="btn" (click)="saveChanges()" [disabled]="saving || !hasChanges()">{{ saving ? 'Guardando...' : 'Guardar cambios' }}</button>
+  </div>
+
+  <div class="status" *ngIf="error">{{ error }}</div>
+  <div class="status success" *ngIf="success">{{ success }}</div>
+
+  <div class="loading" *ngIf="loadingCatalogo || loadingMetas">Cargando...</div>
+
+  <div class="table-wrap" *ngIf="municipioSeleccionadoId && !loadingMetas">
+    <table>
+      <thead>
+        <tr>
+          <th>Comportamiento</th>
+          <th *ngFor="let v of vehicleColumns">{{ v }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let behavior of behaviors">
+          <td class="behavior">{{ labelFor(behavior) }}</td>
+          <td *ngFor="let v of vehicleColumns">
+            <div
+              class="cell"
+              [class.no-aplica]="getCell(behavior, v).disabled"
+              [class.inactive]="!getCell(behavior, v).activo && !getCell(behavior, v).disabled"
+            >
+              <ng-container *ngIf="!getCell(behavior, v).disabled; else noAplicaTpl">
+                <input
+                  type="number"
+                  [ngModel]="getCell(behavior, v).meta"
+                  (ngModelChange)="onMetaChange(behavior, v, $event)"
+                  min="0"
+                />
+                <label class="toggle">
+                  <input
+                    type="checkbox"
+                    [checked]="getCell(behavior, v).activo"
+                    (change)="onActivoChange(behavior, v, !!$any($event.target).checked)"
+                  />
+                  Activo
+                </label>
+              </ng-container>
+              <ng-template #noAplicaTpl>
+                <span class="na">N/A</span>
+              </ng-template>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="empty" *ngIf="!municipioSeleccionadoId && !loadingMetas">
+    Selecciona un municipio para cargar las metas.
+  </div>
+</div>

@@ -1,0 +1,41 @@
+<div class="create-user">
+  <div class="header">
+    <div>
+      <h1>Crear usuario</h1>
+      <p>Define un usuario con contraseña temporal</p>
+    </div>
+    <button class="btn secondary" (click)="back()">Volver</button>
+  </div>
+
+  <form (ngSubmit)="submit()" #f="ngForm">
+    <label>
+      Email
+      <input name="email" [(ngModel)]="email" type="email" required />
+    </label>
+
+    <label>
+      Rol
+      <select name="role" [(ngModel)]="role" required>
+        <option value="USER">USER</option>
+        <option value="ADMIN">ADMIN</option>
+      </select>
+    </label>
+
+    <label>
+      Contraseña temporal
+      <input name="temporaryPassword" [(ngModel)]="temporaryPassword" type="text" />
+      <button type="button" class="btn small" (click)="generateTemp()">Generar</button>
+    </label>
+
+    <button class="btn" [disabled]="f.invalid || loading">
+      {{ loading ? 'Creando...' : 'Crear usuario' }}
+    </button>
+
+    <div class="error" *ngIf="error">{{ error }}</div>
+  </form>
+
+  <div class="created" *ngIf="created">
+    <strong>Usuario creado:</strong> {{ created.email }}
+    <div>Contraseña temporal: <span>{{ created.temporaryPassword }}</span></div>
+  </div>
+</div>

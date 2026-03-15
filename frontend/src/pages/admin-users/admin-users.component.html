@@ -1,0 +1,50 @@
+<div class="admin-users">
+  <div class="header">
+    <div>
+      <h1>Usuarios</h1>
+      <p>Administra cuentas y contraseñas temporales</p>
+    </div>
+    <div class="actions">
+      <button class="btn" routerLink="/admin/create-user">Crear usuario</button>
+      <button class="btn secondary" (click)="load()">Recargar</button>
+    </div>
+  </div>
+
+  <div class="error" *ngIf="error">{{ error }}</div>
+
+  <div class="table" *ngIf="!loading">
+    <div class="row head">
+      <div>ID</div>
+      <div>Email</div>
+      <div>Rol</div>
+      <div>Activo</div>
+      <div>Cambio requerido</div>
+      <div>Creado por</div>
+      <div>Creado</div>
+      <div>Acciones</div>
+    </div>
+
+    <div class="row" *ngFor="let user of users">
+      <div>{{ user.id }}</div>
+      <div>{{ user.email }}</div>
+      <div>{{ user.role }}</div>
+      <div>
+        <span [class.badge-active]="user.active" [class.badge-inactive]="!user.active">
+          {{ user.active ? 'Activo' : 'Inactivo' }}
+        </span>
+      </div>
+      <div>{{ user.mustChangePassword ? 'Sí' : 'No' }}</div>
+      <div>{{ user.createdBy ?? '-' }}</div>
+      <div>{{ user.createdAt ? (user.createdAt | date:'short') : '-' }}</div>
+      <div class="row-actions">
+        <button class="btn small" (click)="resetPassword(user)">Reset</button>
+        <button class="btn small danger" (click)="deactivate(user)" [disabled]="!user.active">Desactivar</button>
+      </div>
+      <div class="temp" *ngIf="tempPasswords.get(user.id)">
+        Temporal: <strong>{{ tempPasswords.get(user.id) }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading" *ngIf="loading">Cargando usuarios...</div>
+</div>

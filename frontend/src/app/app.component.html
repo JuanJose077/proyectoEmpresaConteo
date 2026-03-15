@@ -10,12 +10,20 @@
       <a routerLink="/metas-vs-conteo" routerLinkActive="active">Metas vs Conteo</a>
       <a routerLink="/metas-por-municipio" routerLinkActive="active">Cobertura por Municipio</a>
       <a routerLink="/conteo-por-punto" routerLinkActive="active">Conteo por Punto</a>
+
+      <div class="menu-admin" *ngIf="isAdmin">
+        <span class="menu-title">Admin</span>
+        <a routerLink="/admin/users" routerLinkActive="active">Usuarios</a>
+        <a routerLink="/admin/create-user" routerLinkActive="active">Crear usuario</a>
+        <a routerLink="/admin/metas" routerLinkActive="active">Metas</a>
+      </div>
     </nav>
   </aside>
 
   <div class="main">
     <header class="header">
       <span class="title">Panel de Control</span>
+      <button class="logout" (click)="logout()">Cerrar sesion</button>
     </header>
 
     <section class="content">
