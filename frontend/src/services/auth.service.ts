@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { environment } from '../enviroments/enviroment';
+
+const API_BASE = environment.apiUrl.startsWith('http')
+  ? environment.apiUrl
+  : `https://${environment.apiUrl}`;
 
 export type UserRole = 'ADMIN' | 'USER';
 
@@ -33,18 +38,18 @@ export class AuthService {
 
   login(email: string, password: string): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>('/auth/login', { email, password })
+      .post<AuthResponse>(`${API_BASE}/auth/login`, { email, password })
       .pipe(tap((res) => this.setToken(res.token)));
   }
 
   changePassword(currentPassword: string, newPassword: string): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>('/auth/change-password', { currentPassword, newPassword })
+      .post<AuthResponse>(`${API_BASE}/auth/change-password`, { currentPassword, newPassword })
       .pipe(tap((res) => this.setToken(res.token)));
   }
 
   logout(): Observable<{ ok: boolean }> {
-    return this.http.post<{ ok: boolean }>('/auth/logout', {}).pipe(
+    return this.http.post<{ ok: boolean }>(`${API_BASE}/auth/logout`, {}).pipe(
       tap({
         next: () => this.clearToken(),
         error: () => this.clearToken(),

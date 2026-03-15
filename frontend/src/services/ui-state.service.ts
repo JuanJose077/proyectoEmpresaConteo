@@ -16,7 +16,6 @@ export interface MetasVsConteoState {
     dia: DiaTipo;
   };
 
-  // ✅ Guardamos el último resultado para que la tabla NO desaparezca
   data?: DashboardResponse;
 }
 
@@ -37,7 +36,7 @@ export class UiStateService {
   private metasVsConteoState: MetasVsConteoState = { ...DEFAULT_STATE };
 
   getMetasVsConteoState(): MetasVsConteoState {
-    // copia profunda simple
+
     return {
       ...this.metasVsConteoState,
       filters: { ...this.metasVsConteoState.filters },

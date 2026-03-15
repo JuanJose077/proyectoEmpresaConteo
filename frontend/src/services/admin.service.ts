@@ -2,6 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UserRole } from './auth.service';
+import { environment } from '../enviroments/enviroment';
+
+const API_BASE = environment.apiUrl.startsWith('http')
+  ? environment.apiUrl
+  : `https://${environment.apiUrl}`;
 
 export interface AdminUser {
   id: number;
@@ -56,30 +61,33 @@ export class AdminService {
   constructor(private http: HttpClient) {}
 
   listUsers(): Observable<AdminUser[]> {
-    return this.http.get<AdminUser[]>('/admin/users');
+    return this.http.get<AdminUser[]>(`${API_BASE}/admin/users`);
   }
 
   createUser(payload: CreateUserRequest): Observable<CreateUserResponse> {
-    return this.http.post<CreateUserResponse>('/admin/users', payload);
+    return this.http.post<CreateUserResponse>(`${API_BASE}/admin/users`, payload);
   }
 
   deactivateUser(id: number): Observable<{ ok: boolean }> {
-    return this.http.patch<{ ok: boolean }>(`/admin/users/${id}/deactivate`, {});
+    return this.http.patch<{ ok: boolean }>(`${API_BASE}/admin/users/${id}/deactivate`, {});
   }
 
   resetPassword(id: number, temporaryPassword?: string): Observable<ResetPasswordResponse> {
-    return this.http.patch<ResetPasswordResponse>(`/admin/users/${id}/reset-password`, { temporaryPassword });
+    return this.http.patch<ResetPasswordResponse>(
+      `${API_BASE}/admin/users/${id}/reset-password`,
+      { temporaryPassword },
+    );
   }
 
   updateMeta(id: number, payload: { meta?: number; activo?: number }): Observable<{ ok: boolean }> {
-    return this.http.patch<{ ok: boolean }>(`/admin/metas/${id}`, payload);
+    return this.http.patch<{ ok: boolean }>(`${API_BASE}/admin/metas/${id}`, payload);
   }
 
   getMetasByMunicipio(municipioId: number): Observable<MetaCell[]> {
-    return this.http.get<MetaCell[]>(`/metas?municipioId=${municipioId}`);
+    return this.http.get<MetaCell[]>(`${API_BASE}/metas?municipioId=${municipioId}`);
   }
 
   updateMetasBatch(payload: MetaUpdate[]): Observable<{ ok: boolean; updated: number }> {
-    return this.http.put<{ ok: boolean; updated: number }>(`/admin/metas/batch`, payload);
+    return this.http.put<{ ok: boolean; updated: number }>(`${API_BASE}/admin/metas/batch`, payload);
   }
 }

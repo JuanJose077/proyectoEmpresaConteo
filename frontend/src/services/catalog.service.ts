@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, tap } from 'rxjs';
+import { environment } from '../enviroments/enviroment';
+
+const API_BASE = environment.apiUrl.startsWith('http')
+  ? environment.apiUrl
+  : `https://${environment.apiUrl}`;
 
 export interface DepartamentosResponse {
   items: string[];
@@ -30,14 +35,13 @@ export class CatalogService {
 
   constructor(private http: HttpClient) {}
 
-  /** Departamentos (cache 1 vez) */
   getDepartamentos(force = false): Observable<DepartamentosResponse> {
     if (!force && this.departamentosCache) {
       return of({ items: this.departamentosCache });
     }
 
     return this.http
-      .get<DepartamentosResponse>('/api/catalogo/departamentos')
+      .get<DepartamentosResponse>(`${API_BASE}/api/catalogo/departamentos`)
       .pipe(
         tap((res) => {
           this.departamentosCache = res.items || [];
@@ -45,7 +49,6 @@ export class CatalogService {
       );
   }
 
-  /** Municipios por departamento (cache por departamento) */
   getMunicipios(
     departamento: string,
     force = false,
@@ -57,7 +60,7 @@ export class CatalogService {
     }
 
     return this.http
-      .get<MunicipiosResponse>('/api/catalogo/municipios', {
+      .get<MunicipiosResponse>(`${API_BASE}/api/catalogo/municipios`, {
         params: { departamento: key },
       })
       .pipe(
@@ -67,11 +70,10 @@ export class CatalogService {
       );
   }
   getPuntos(municipioId: number): Observable<PuntoItem[]> {
-    return this.http.get<PuntoItem[]>(`/api/puntos?municipioId=${municipioId}`);
+    return this.http.get<PuntoItem[]>(`${API_BASE}/api/puntos?municipioId=${municipioId}`);
   }
   
 
-  /** Para precargar al iniciar sesión */
   preloadDepartamentos(): void {
     this.getDepartamentos().subscribe({ error: () => {} });
   }
@@ -82,7 +84,7 @@ export class CatalogService {
   }
 
   return this.http
-    .get<DepartamentosResponse>('/api/catalogo/departamentos-todos')
+    .get<DepartamentosResponse>(`${API_BASE}/api/catalogo/departamentos-todos`)
     .pipe(
       tap((res) => {
         this.todosLosDepartamentosCache = res.items || [];

@@ -5,6 +5,11 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { CatalogService } from '../../services/catalog.service';
+import { environment } from '../../enviroments/enviroment';
+
+const API_BASE = environment.apiUrl.startsWith('http')
+  ? environment.apiUrl
+  : `https://${environment.apiUrl}`;
 
 interface ResumenCobertura {
   totalMunicipios: number;
@@ -118,20 +123,20 @@ export class MetasPorMunicipioComponent implements OnInit {
     }
 
     forkJoin({
-      resumen: this.http.get<ResumenCobertura>('/api/cobertura/resumen', {
+      resumen: this.http.get<ResumenCobertura>(`${API_BASE}/api/cobertura/resumen`, {
         params: baseParams,
       }),
-      detalle: this.http.get<DetalleMunicipio[]>('/api/cobertura/detalle', {
+      detalle: this.http.get<DetalleMunicipio[]>(`${API_BASE}/api/cobertura/detalle`, {
         params: baseParams,
       }),
       rankingMas: this.http.get<RankingMunicipio[]>(
-        '/api/cobertura/ranking-mas',
+        `${API_BASE}/api/cobertura/ranking-mas`,
         {
           params: baseParams.set('limite', '5'),
         },
       ),
       rankingMenos: this.http.get<RankingMunicipio[]>(
-        '/api/cobertura/ranking-menos',
+        `${API_BASE}/api/cobertura/ranking-menos`,
         {
           params: baseParams.set('limite', '5'),
         },

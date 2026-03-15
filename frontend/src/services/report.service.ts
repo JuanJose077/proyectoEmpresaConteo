@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../enviroments/enviroment';
+
+const API_BASE = environment.apiUrl.startsWith('http')
+  ? environment.apiUrl
+  : `https://${environment.apiUrl}`;
 
 export type Jornada = 'GENERAL' | 'PICO' | 'VALLE';
 export type DiaTipo = 'TODOS' | 'HABIL' | 'NO_HABIL';
@@ -39,7 +44,7 @@ export class ReportService {
       }
     });
 
-    return this.http.get<ConteoPorPuntoItem[]>('/api/reportes/conteo-por-punto', { params: httpParams });
+    return this.http.get<ConteoPorPuntoItem[]>(`${API_BASE}/api/reportes/conteo-por-punto`, { params: httpParams });
   }
 
   getActividadDiaria(params: ConteoPorPuntoParams): Observable<ActividadDiariaItem[]> {
@@ -51,7 +56,7 @@ export class ReportService {
       }
     });
 
-    return this.http.get<ActividadDiariaItem[]>('/api/reportes/conteo-por-punto/actividad-diaria', { params: httpParams });
+    return this.http.get<ActividadDiariaItem[]>(`${API_BASE}/api/reportes/conteo-por-punto/actividad-diaria`, { params: httpParams });
   }
   getDashboard(params: {
   municipioId?: number;
@@ -61,7 +66,7 @@ export class ReportService {
   jornada?: 'GENERAL' | 'PICO' | 'VALLE';
   dia?: 'TODOS' | 'HABIL' | 'NO_HABIL';
 }) {
-  return this.http.get<DashboardResponse>('/api/reportes/dashboard', { params: params as any });
+  return this.http.get<DashboardResponse>(`${API_BASE}/api/reportes/dashboard`, { params: params as any });
 }
 }
 
