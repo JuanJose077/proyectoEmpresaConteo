@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { CatalogService } from '../../services/catalog.service';
 import { environment } from '../../enviroments/enviroment';
@@ -43,7 +42,7 @@ interface FiltrosCobertura {
 @Component({
   selector: 'app-metas-por-municipio',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './metas-por-municipio.component.html',
   styleUrls: ['./metas-por-municipio.component.scss'],
 })
